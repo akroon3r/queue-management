@@ -358,8 +358,25 @@
         this.setReturnExamInfo(item)
       },
       updateBookingRoute(item) {
-        item.gotoDate = new moment(item.booking.start_time)
-        item.referringAction = 'rescheduling'
+        let calendarEvent = this.calendarEvents.find(event => event.id == item.booking_id)
+        this.setEditedBookingOriginal(calendarEvent)
+        this.setEditedBooking(calendarEvent)
+        this.toggleEditBookingModal(true)
+        this.$router.push('/booking/' + moment(item.booking.start_time).format('YYYY-MM-DD'))
+      },
+      resetEditedExam() {
+        this.item = {}
+      },
+      formatDate(d) {
+        return new moment(d).format('MMM DD, YYYY')
+      },
+      formatTime(d) {
+        return new moment(d).format('h:mm a')
+      },
+      addBookingRoute(item) {
+        let bookingRoute = '/booking/?schedule=1'
+        this.$router.push(bookingRoute)
+        this.navigationVisible(false)
         this.setSelectedExam(item)
         let booking = this.calendarEvents.find(event => event.id == item.booking_id)
         booking.start = new moment(booking.start)
