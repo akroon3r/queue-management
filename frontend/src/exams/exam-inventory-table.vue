@@ -106,7 +106,7 @@
                            @click="editExam(row.item)">Edit Exam</b-dropdown-item>
           <b-dropdown-item size="sm"
                            @click="returnExamInfo(row.item)">Return Exam</b-dropdown-item>
-          <template v-if="row.item.booking&&(row.item.booking.invigilator_id||row.item.booking.sbc_staff_invigilated)">
+          <template v-if="row.item.booking && row.item.booking.invigilator_id">
             <b-dropdown-item v-if="row.item.offsite_location"
                              size="sm"
                              @click="editGroupExam(row.item)">Reschedule</b-dropdown-item>
@@ -230,18 +230,25 @@
         'toggleScheduling',
       ]),
       addBookingRoute(item) {
-        this.toggleScheduling(true)
-        item.referringAction = 'scheduling'
+        let bookingRoute = '/booking/scheduling'
+        this.$router.push(bookingRoute)
+        this.navigationVisible(false)
         this.setSelectedExam(item)
-        this.$router.push('/booking')
+        this.toggleCalendarControls(false)
         this.toggleExamInventoryModal(false)
+        this.toggleScheduling(true)
+        this.toggleSchedulingIndicator(true)
       },
-      clickRow(item) {
+      clickRow(e) {
         if (this.showExamInventoryModal) {
-          this.toggleScheduling(true)
-          this.setSelectedExam(item)
-          this.$router.push('/booking')
+          this.$root.$emit('toggleOffsite', false)
+          this.$root.$emit('options', {name: 'selectable', value: true})
+          this.navigationVisible(false)
+          this.setSelectedExam(e)
+          this.toggleCalendarControls(false)
           this.toggleExamInventoryModal(false)
+          this.toggleScheduling(true)
+          this.toggleSchedulingIndicator(true)
         }
       },
       editExam(item) {
@@ -342,8 +349,15 @@
           this.tableStyle = { width: 98 + '%' }
         }
       },
+      handleBookedFilter(e) {
+        this.bookedFilter = e.target.value
+      },
+      handleExpiryFilter(e) {
+        this.expiryFilter = e.target.value
+      },
       handleFilter(e) {
-        this.setInventoryFilters(e)
+        this[e.type] = e.value
+        localStorage.setItem(e.type, e.value)
       },
       resetButtons() {
         this.buttons.all = 'btn-secondary'
@@ -363,28 +377,6 @@
         this.setEditedBooking(calendarEvent)
         this.toggleEditBookingModal(true)
         this.$router.push('/booking/' + moment(item.booking.start_time).format('YYYY-MM-DD'))
-      },
-      resetEditedExam() {
-        this.item = {}
-      },
-      formatDate(d) {
-        return new moment(d).format('MMM DD, YYYY')
-      },
-      formatTime(d) {
-        return new moment(d).format('h:mm a')
-      },
-      addBookingRoute(item) {
-        let bookingRoute = '/booking/?schedule=1'
-        this.$router.push(bookingRoute)
-        this.navigationVisible(false)
-        this.setSelectedExam(item)
-        let booking = this.calendarEvents.find(event => event.id == item.booking_id)
-        booking.start = new moment(booking.start)
-        booking.end = new moment(booking.end)
-        this.setEditedBooking(booking)
-        this.setEditedBookingOriginal(booking)
-        this.toggleEditBookingModal(true)
-        this.$router.push('/booking')
       },
     },
   }

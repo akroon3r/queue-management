@@ -17,18 +17,22 @@
                   <div>Exam: </div>
                   <div>{{ examRow.exam_name }}</div>
                 </div>
-                <div class="q-id-grid-col">
-                  <div>Event ID: </div>
-                  <div>{{ examRow.event_id }}</div>
+                <div class="id-grid-1st-col w-100 pr-2">
+                  <div style="display: flex; justify-content: space-between; width: 100%">
+                    <div>Exam:</div>
+                    <div>{{ examRow.exam_name }}</div>
+                  </div>
                 </div>
-                <div class="q-id-grid-col">
-                  <div>Type: </div>
-                  <div>{{ examRow.exam_type.exam_type_name }}</div>
+                <div class="pl-2">Event ID: </div>
+                <div class="q-id-grid-2nd-col">{{ examRow.event_id }}</div>
+                <div class="id-grid-1st-col w-100 pr-2">
+                  <div style="display: flex; justify-content: space-between; width: 100%">
+                    <div>Type:</div>
+                    <div>{{ examRow.exam_type.exam_type_name }}</div>
+                  </div>
                 </div>
-                <div class="q-id-grid-col">
-                  <div>Writers: </div>
-                  <div>{{ examRow.number_of_students }}</div>
-                </div>
+                <div class="pl-2">Writers: </div>
+                <div style="margin-left: auto;">{{ examRow.number_of_students }}</div>
               </div>
             </div>
           </b-col>
