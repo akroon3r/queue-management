@@ -44,6 +44,7 @@
           {value: 'service', text: 'Provided Services'},
           {value: 'smartboard', text: 'Smartboard Content'},
           {value: 'invigilator', text: 'Invigilators'},
+          {value: 'room', text: 'Rooms'}
         ]
       }
     },
