@@ -54,7 +54,6 @@ class CSRConfig(Base):
     form_args = {
         'qt_xn_csr_ind': {'default': '0'},
         'receptionist_ind': {'default': '0'},
-
         'csr_state': {'default': 'Logout'},
         'ita_designate': {'default': '0'}
     }
