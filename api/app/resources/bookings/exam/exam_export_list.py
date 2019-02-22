@@ -65,7 +65,7 @@ class ExamList(Resource):
                               .filter(Booking.start_time >= start_date) \
                               .filter(Booking.start_time < end_date) \
                               .join(Invigilator, Booking.invigilator_id == Invigilator.invigilator_id, isouter=True) \
-                              .join(Room, Booking.room_id == Room.room_id) \
+                              .join(Room, Booking.room_id == Room.room_id, isouter=True) \
                               .join(Office, Booking.office_id == Office.office_id) \
                               .join(ExamType, Exam.exam_type_id == ExamType.exam_type_id)
 
@@ -82,68 +82,63 @@ class ExamList(Resource):
             out = csv.writer(dest)
             out.writerow(['Office Name', 'Exam Type', 'Exam ID', 'Exam Name', 'Examinee Name', 'Event ID', 'Room Name', 'Invigilator Name', 'Booking ID', 'Booking Name', 'Exam Received', 'Exam Returned' ])
 
+            keys = [
+                "office_name",
+                "exam_type_name",
+                "exam_id",
+                "exam_name",
+                "examinee_name",
+                "event_id",
+                "room_name",
+                "invigilator_name",
+                "booking_id",
+                "booking_name",
+                "exam_received_date",
+                "exam_returned_ind"
+            ]
+
             for exam in exams:
-
+                row = []
+                for key in keys:
+                    if key == "office_name":
+                        row.append(exam.office.office_name)
+                    elif key == "exam_type_name":
+                        row.append(exam.exam_type.exam_type_name)
+                    elif key == "exam_id":
+                        row.append(exam.exam_id)
+                    elif key == "exam_name":
+                        row.append(exam.exam_name)
+                    elif key == "examinee_name":
+                        row.append(exam.examinee_name)
+                    elif key == "event_id":
+                        row.append(exam.event_id)
+                    elif key == "room_name":
+                        # TODO This needs to change after group exam ind is fixed to check for group exam in
+                        if "Group" in exam.exam_type.exam_type_name:
+                            row.append("")
+                        else:
+                            row.append(exam.booking.room.room_name)
+                    elif key == "invigilator_name":
+                        if exam.booking.invigilator is None:
+                            row.append("")
+                        else:
+                            row.append(exam.booking.invigilator.invigilator_name)
+                    elif key == "booking_id":
+                        row.append(exam.booking.booking_id)
+                    elif key == "booking_name":
+                        row.append(exam.booking.booking_name)
+                    elif key == "exam_received_date":
+                        if exam.exam_received_date is None:
+                            row.append("N")
+                        else:
+                            row.append("Y")
+                    elif key == "exam_returned_ind":
+                        if exam.exam_returned_ind == 0:
+                            row.append("N")
+                        else:
+                            row.append("Y")
                 try:
-                    if exam.booking.invigilator is None:
-                        if exam.exam_received_date is None:
-                            if exam.exam_returned_ind == 0:
-                                out.writerow([exam.office.office_name, exam.exam_type.exam_type_name, exam.exam_id, exam.exam_name,
-                                              exam.examinee_name,
-                                              exam.event_id, exam.booking.room.room_name, '',
-                                              exam.booking.booking_id, exam.booking.booking_name, 'N',
-                                              'N'])
-                            else:
-                                out.writerow([exam.office.office_name, exam.exam_type.exam_type_name, exam.exam_id,
-                                              exam.exam_name,
-                                              exam.examinee_name,
-                                              exam.event_id, exam.booking.room.room_name, '',
-                                              exam.booking.booking_id, exam.booking.booking_name, 'N',
-                                              'Y'])
-                        else:
-                            if exam.exam_returned_ind == 0:
-                                out.writerow([exam.office.office_name, exam.exam_type.exam_type_name, exam.exam_id, exam.exam_name,
-                                              exam.examinee_name,
-                                              exam.event_id, exam.booking.room.room_name, '',
-                                              exam.booking.booking_id, exam.booking.booking_name, 'Y',
-                                              'N'])
-                            else:
-                                out.writerow([exam.office.office_name, exam.exam_type.exam_type_name, exam.exam_id,
-                                              exam.exam_name,
-                                              exam.examinee_name,
-                                              exam.event_id, exam.booking.room.room_name, '',
-                                              exam.booking.booking_id, exam.booking.booking_name, 'Y',
-                                              'Y'])
-                    else:
-                        if exam.exam_received_date is None:
-                            if exam.exam_returned_ind == 0:
-                                out.writerow([exam.office.office_name, exam.exam_type.exam_type_name, exam.exam_id, exam.exam_name,
-                                              exam.examinee_name,
-                                              exam.event_id, exam.booking.room.room_name, exam.booking.invigilator.invigilator_name,
-                                              exam.booking.booking_id, exam.booking.booking_name, 'N',
-                                              'N'])
-                            else:
-                                out.writerow([exam.office.office_name, exam.exam_type.exam_type_name, exam.exam_id,
-                                              exam.exam_name,
-                                              exam.examinee_name,
-                                              exam.event_id, exam.booking.room.room_name, exam.booking.invigilator.invigilator_name,
-                                              exam.booking.booking_id, exam.booking.booking_name, 'N',
-                                              'Y'])
-                        else:
-                            if exam.exam_returned_ind == 0:
-                                out.writerow([exam.office.office_name, exam.exam_type.exam_type_name, exam.exam_id, exam.exam_name,
-                                              exam.examinee_name,
-                                              exam.event_id, exam.booking.room.room_name, exam.booking.invigilator.invigilator_name,
-                                              exam.booking.booking_id, exam.booking.booking_name, 'Y',
-                                              'N'])
-                            else:
-                                out.writerow([exam.office.office_name, exam.exam_type.exam_type_name, exam.exam_id,
-                                              exam.exam_name,
-                                              exam.examinee_name,
-                                              exam.event_id, exam.booking.room.room_name, exam.booking.invigilator.invigilator_name,
-                                              exam.booking.booking_id, exam.booking.booking_name, 'Y',
-                                              'Y'])
-
+                    out.writerow(row)
                 except AttributeError as error:
                     logging.error(error, exc_info=True)
                     return {"message": "Invigilator Name Not Found"}, 404
