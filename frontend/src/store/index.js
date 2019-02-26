@@ -310,7 +310,7 @@ export const store = new Vuex.Store({
     officeType: null,
     performingAction: false,
     rescheduling: false,
-    returnExams: [],
+    returnExam: null,
     rooms: [],
     roomResources: [],
     scheduling: false,
@@ -2317,7 +2317,7 @@ export const store = new Vuex.Store({
 
     setEditExamInfo: (state, payload) => state.editExams = payload,
 
-    setReturnExamInfo: (state, payload) => state.returnExams = payload,
+    setReturnExamInfo: (state, payload) => state.returnExam = payload,
 
     setExamMethods: (state, payload) => state.examMethods = payload,
 
