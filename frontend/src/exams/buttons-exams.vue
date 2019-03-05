@@ -11,7 +11,8 @@
         <b-button v-if="role_code==='LIAISON' && financial_designate === 0 "
                   class="btn-primary"
                   @click="clickAddGroup">Add Group Exam</b-button>
-        <b-button v-if="pesticide_designate === 1 && financial_designate === 0"
+        <!-- TODO v-if="pesticide_designate === 1 && financial_designate === 0" when pesticides is re-implemented-->
+        <b-button v-if="1 == 0"
                   class="btn-primary"
                   @click="clickAddPesticide">Add Pesticide Exam</b-button>
       </b-form>

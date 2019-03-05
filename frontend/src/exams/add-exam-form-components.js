@@ -342,8 +342,9 @@ export const DropdownQuestion = Vue.component('dropdown-question',{
         let exams = this.examTypes.filter(type => type.exam_type_name.includes('Single'))
         return exams.sort((a,b) => sorter(a,b))
       }
+      // Re-add filter !type.exam_type_name.includes('Pesticide') when pesticides is re-implemented
       if(this.addExamModal.setup === 'other') {
-        let exams = this.examTypes.filter(type  => type.ita_ind === 0 && !type.exam_type_name.includes('Pesticide') )
+        let exams = this.examTypes.filter(type  => type.ita_ind === 0 )
         return exams.sort((a,b) => sorter(a,b))
       }
       if (this.addExamModal.setup === 'group') {
