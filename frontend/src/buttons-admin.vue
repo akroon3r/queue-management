@@ -43,6 +43,7 @@
           {value: 'role', text: 'User roles'},
           {value: 'service', text: 'Provided Services'},
           {value: 'smartboard', text: 'Smartboard Content'},
+          {value: 'room', text: 'Rooms'}
         ]
       }
     },
