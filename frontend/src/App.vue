@@ -49,6 +49,13 @@ limitations under the License.*/
 
   export default {
     name: 'App',
+    created(){
+      document.addEventListener('keydown', e => {
+        if(e.keyCode===13){
+          e.preventDefault()
+        }
+      })
+    },
     components: {
       Alert,
       ExamAlert,
