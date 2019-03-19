@@ -19,7 +19,7 @@
         <template v-if="!minimized">
           <b-form>
             <b-form-group>
-              <label>Event Title<span style="color: red">{{ message }}</span></label><br>
+              <label>Scheduling Party<span style="color: red">{{ message }}</span></label><br>
               <b-input :state="state" type="text" v-model="title" />
             </b-form-group>
             <b-form-row>
