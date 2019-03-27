@@ -28,7 +28,6 @@ class OfficeList(Resource):
     @oidc.accept_token(require_token=True)
     def get(self):
         try:
-            csr = CSR.find_by_username(g.oidc_token_info['username'])
 
             offices = Office.query.filter(Office.deleted.is_(None))
             result = self.office_schema.dump(offices)
