@@ -33,6 +33,7 @@ class Exam(Base):
     exam_method = db.Column(db.String(15), nullable=False)
     deleted_date = db.Column(db.String(50), nullable=True)
     exam_returned_ind = db.Column(db.Integer, nullable=False, default=0)
+    exam_returned_date = db.Column(db.String(256), nullable=True)
     exam_returned_tracking_number = db.Column(db.String(50), nullable=True)
     offsite_location = db.Column(db.String(50), nullable=True)
 

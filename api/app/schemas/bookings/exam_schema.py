@@ -42,6 +42,7 @@ class ExamSchema(ma.ModelSchema):
     office_id = fields.Int()
     session_number = fields.Int()
     exam_returned_ind = fields.Int()
+    exam_returned_date = fields.Str()
     exam_returned_tracking_number = fields.String()
     offsite_location = fields.String()
 
