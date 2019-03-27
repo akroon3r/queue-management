@@ -91,7 +91,7 @@ class ExamList(Resource):
                 "booking_id",
                 "booking_name",
                 "exam_received_date",
-                "exam_returned_ind"
+                "exam_returned_date"
             ]
 
             for exam in exams:
@@ -129,8 +129,8 @@ class ExamList(Resource):
                                 row.append("N")
                             else:
                                 row.append("Y")
-                        elif key == "exam_returned_ind":
-                            if exam.exam_returned_ind == 0:
+                        elif key == "exam_returned_date":
+                            if exam.exam_returned_date is None:
                                 row.append("N")
                             else:
                                 row.append("Y")
