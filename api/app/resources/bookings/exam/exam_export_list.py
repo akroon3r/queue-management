@@ -45,9 +45,7 @@ class ExamList(Resource):
             end_param = request.args.get("end_date")
             exam_type = request.args.get("exam_type")
 
-            if not(start_param and end_param):
-
-                return {"message": "Must provide both start and end time"}, 422
+            check_params(start_param, end_param)
 
             try:
                 start_date = datetime.strptime(request.args['start_date'], "%Y-%m-%d")
@@ -63,94 +61,14 @@ class ExamList(Resource):
 
             end_date = self.timezone.localize(end_date)
 
-            exams = Exam.query.filter_by(office_id=csr.office_id) \
-                              .join(Booking, Exam.booking_id == Booking.booking_id) \
-                              .filter(Booking.start_time >= start_date) \
-                              .filter(Booking.start_time < end_date) \
-                              .join(Invigilator, Booking.invigilator_id == Invigilator.invigilator_id, isouter=True) \
-                              .join(Room, Booking.room_id == Room.room_id, isouter=True) \
-                              .join(Office, Booking.office_id == Office.office_id) \
-                              .join(ExamType, Exam.exam_type_id == ExamType.exam_type_id)
-
-            if exam_type == 'ita':
-                exams = exams.filter(ExamType.ita_ind == 1)
-            elif exam_type == 'all_non_ita':
-                exams = exams.filter(ExamType.ita_ind == 0)
+            exams = query_exams(csr, exam_type, start_date, end_date)
 
             dest = io.StringIO()
             out = csv.writer(dest)
-            out.writerow(['Office Name', 'Exam Type', 'Exam ID', 'Exam Name', 'Examinee Name', 'Event ID', 'Room Name',
-                          'Invigilator Name', 'Booking ID', 'Booking Name', 'Exam Received', 'Exam Written',
-                          'Exam Returned'])
 
-            keys = [
-                "office_name",
-                "exam_type_name",
-                "exam_id",
-                "exam_name",
-                "examinee_name",
-                "event_id",
-                "room_name",
-                "invigilator_name",
-                "booking_id",
-                "booking_name",
-                "exam_received_date",
-                "exam_written_ind",
-                "exam_returned_date"
-            ]
+            write_header(out)
 
-            for exam in exams:
-                row = []
-                try:
-                    for key in keys:
-                        if key == "office_name":
-                            row.append(exam.office.office_name)
-                        elif key == "exam_type_name":
-                            row.append(exam.exam_type.exam_type_name)
-                        elif key == "exam_id":
-                            row.append(exam.exam_id)
-                        elif key == "exam_name":
-                            row.append(exam.exam_name)
-                        elif key == "examinee_name":
-                            row.append(exam.examinee_name)
-                        elif key == "event_id":
-                            row.append(exam.event_id)
-                        elif key == "room_name":
-                            if exam.exam_type.group_exam_ind == 1:
-                                row.append("")
-                            else:
-                                row.append(exam.booking.room.room_name)
-                        elif key == "invigilator_name":
-                            if exam.booking.invigilator is None:
-                                row.append("")
-                            else:
-                                row.append(exam.booking.invigilator.invigilator_name)
-                        elif key == "booking_id":
-                            row.append(exam.booking.booking_id)
-                        elif key == "booking_name":
-                            row.append(exam.booking.booking_name)
-                        elif key == "exam_received_date":
-                            if exam.exam_received_date is None:
-                                row.append("N")
-                            else:
-                                row.append("Y")
-                        elif key == "exam_written_ind":
-                            if exam.exam_written_ind == 1:
-                                row.append("Y")
-                            else:
-                                row.append("N")
-                        elif key == "exam_returned_date":
-                            if exam.exam_returned_date is None:
-                                row.append("N")
-                            else:
-                                row.append("Y")
-
-                    out.writerow(row)
-
-                except AttributeError as error:
-                    logging.error(error, exc_info=True)
-                    return {"message": "Issue writing row to CSV ",
-                            "key": key}, 500
+            write_row(out, exams)
 
             output = make_response(dest.getvalue())
             output.headers["Content-Disposition"] = "attachment; filename=export.csv"
@@ -161,3 +79,113 @@ class ExamList(Resource):
         except exc.SQLAlchemyError as error:
             logging.error(error, exc_info=True)
             return {"message": "api is down"}, 500
+
+
+def check_params(start_param, end_param):
+
+    if not (start_param and end_param):
+        return {"message": "Must provide both start and end time"}, 422
+
+    return
+
+
+def query_exams(csr, exam_type, start_date, end_date):
+
+    exams = Exam.query.filter_by(office_id=csr.office_id) \
+        .join(Booking, Exam.booking_id == Booking.booking_id) \
+        .filter(Booking.start_time >= start_date) \
+        .filter(Booking.start_time < end_date) \
+        .join(Invigilator, Booking.invigilator_id == Invigilator.invigilator_id, isouter=True) \
+        .join(Room, Booking.room_id == Room.room_id, isouter=True) \
+        .join(Office, Booking.office_id == Office.office_id) \
+        .join(ExamType, Exam.exam_type_id == ExamType.exam_type_id)
+
+    if exam_type == 'ita':
+        exams = exams.filter(ExamType.ita_ind == 1)
+    elif exam_type == 'all_non_ita':
+        exams = exams.filter(ExamType.ita_ind == 0)
+
+    return exams
+
+
+def write_header(out):
+
+    out.writerow(['Office Name', 'Exam Type', 'Exam ID', 'Exam Name', 'Examinee Name', 'Event ID', 'Room Name',
+                  'Invigilator Name', 'Booking ID', 'Booking Name', 'Exam Received', 'Exam Written',
+                  'Exam Returned'])
+
+    return
+
+
+def write_row(out, exams):
+
+    keys = [
+        "office_name",
+        "exam_type_name",
+        "exam_id",
+        "exam_name",
+        "examinee_name",
+        "event_id",
+        "room_name",
+        "invigilator_name",
+        "booking_id",
+        "booking_name",
+        "exam_received_date",
+        "exam_written_ind",
+        "exam_returned_date"
+    ]
+
+    for exam in exams:
+        row = []
+        try:
+            for key in keys:
+                if key == "office_name":
+                    row.append(exam.office.office_name)
+                elif key == "exam_type_name":
+                    row.append(exam.exam_type.exam_type_name)
+                elif key == "exam_id":
+                    row.append(exam.exam_id)
+                elif key == "exam_name":
+                    row.append(exam.exam_name)
+                elif key == "examinee_name":
+                    row.append(exam.examinee_name)
+                elif key == "event_id":
+                    row.append(exam.event_id)
+                elif key == "room_name":
+                    if exam.exam_type.group_exam_ind == 1:
+                        row.append("")
+                    else:
+                        row.append(exam.booking.room.room_name)
+                elif key == "invigilator_name":
+                    if exam.booking.invigilator is None:
+                        row.append("")
+                    else:
+                        row.append(exam.booking.invigilator.invigilator_name)
+                elif key == "booking_id":
+                    row.append(exam.booking.booking_id)
+                elif key == "booking_name":
+                    row.append(exam.booking.booking_name)
+                elif key == "exam_received_date":
+                    if exam.exam_received_date is None:
+                        row.append("N")
+                    else:
+                        row.append("Y")
+                elif key == "exam_written_ind":
+                    if exam.exam_written_ind == 1:
+                        row.append("Y")
+                    else:
+                        row.append("N")
+                elif key == "exam_returned_date":
+                    if exam.exam_returned_date is None:
+                        row.append("N")
+                    else:
+                        row.append("Y")
+
+            out.writerow(row)
+
+        except AttributeError as error:
+            logging.error(error, exc_info=True)
+            return {"message": "Issue writing row to CSV ",
+                    "key": key}, 500
+
+        return
