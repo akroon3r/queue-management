@@ -350,19 +350,22 @@ class Bootstrap(Command):
             office_name="Test Office",
             office_number=999,
             sb_id=smartboard_call_ticket.sb_id,
-            exams_enabled_ind=1
+            exams_enabled_ind=1,
+            timezone_id=1
         )
         office_100 = theq.Office(
             office_name="100 Mile House",
             office_number=1,
             sb_id=smartboard_no_call.sb_id,
-            exams_enabled_ind=0
+            exams_enabled_ind=0,
+            timezone_id=1
         )
         office_victoria = theq.Office(
             office_name="Victoria",
             office_number=61,
             sb_id=smartboard_call_name.sb_id,
-            exams_enabled_ind=0
+            exams_enabled_ind=0,
+            timezone_id=1
         )
         db.session.add(office_test)
         db.session.add(office_100)
