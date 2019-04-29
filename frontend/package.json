@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "localhost": "node build/localhost-server.js",
-    "dev": "node build/dev-server.js",
+    "dev": "node build/dev-server.js --host 0.0.0.0 -- allowed-hosts 192.168.0.20",
     "start": "node build/dev-server.js",
     "test": "jest",
     "build:local": "node build/build-local.js",
