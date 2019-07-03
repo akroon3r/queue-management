@@ -96,7 +96,9 @@ export const store = new Vuex.Store({
     examSuccessDismiss : 0,
     examTypes: [],
     feedbackMessage: '',
+    groupExam: false,
     iframeLogedIn: false,
+    individualExam: false,
     inventoryFilters: {
       expiryFilter: 'current',
       scheduledFilter: 'both',
@@ -787,7 +789,7 @@ export const store = new Vuex.Store({
             c => c.counter_name === DEFAULT_COUNTER_NAME)[0])
           let individualExamBoolean = false
           let groupExamBoolean = false
-          
+
           if (resp.data.group_exams > 0) {
             groupExamBoolean = true
             context.commit('setGroupExam', groupExamBoolean)

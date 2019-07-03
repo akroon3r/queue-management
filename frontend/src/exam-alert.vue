@@ -13,14 +13,21 @@ See the License for the specific language governing permissions and
 limitations under the License.*/
 
 <template>
-  <div v-if="is_ita_designate" id="EXAMALERT">
+  <div v-if="is_ita_designate"
+       id="EXAMALERT">
     <b-alert
              variant="primary"
              dismissible
              :show="examDismissCount"
              style="h-align: center; font-size:1rem; border-radius: 0px;"
              @dismissed="onDismissedExam">
-             {{ examAlertMessage }}
+      {{ examAlertMessage }}
+      <b-button id="showExams"
+                variant="primary"
+                @click="goShow"
+                size="sm">
+        Show
+      </b-button>
     </b-alert>
   </div>
 </template>
@@ -32,14 +39,46 @@ export default {
   name: 'ExamAlert',
   computed: {
     ...mapGetters([ 'is_ita_designate' ]),
-    ...mapState([ 'examAlertMessage', 'examDismissCount' ])
+    ...mapState([ 'examAlertMessage',
+                  'examDismissCount',
+                  'groupExam',
+                  'individualExam'])
   },
   methods: {
-    ...mapMutations(['examDismissCountDown']),
-
+    ...mapMutations(['examDismissCountDown',
+                     'setInventoryFilters']),
+    goShow() {
+      this.$router.push('/exams')
+      if(this.groupExam && this.individualExam){
+        this.setInventoryFilters({type:'groupFilter', value:'both'})
+        this.setInventoryFilters({type:'returnedFilter', value:'both'})
+        this.setInventoryFilters({type:'scheduledFilter', value:'both'})
+        this.setInventoryFilters({type:'expiryFilter', value:'all'})
+      }
+      else if(this.groupExam && !this.individualExam){
+        this.setInventoryFilters({type:'groupFilter', value:'group'})
+        this.setInventoryFilters({type:'returnedFilter', value:'both'})
+        this.setInventoryFilters({type:'scheduledFilter', value:'both'})
+        this.setInventoryFilters({type:'expiryFilter', value:'all'})
+      }
+      else if(!this.groupExam && this.individualExam){
+        this.setInventoryFilters({type:'groupFilter', value:'individual'})
+        this.setInventoryFilters({type:'returnedFilter', value:'unreturned'})
+        this.setInventoryFilters({type:'scheduledFilter', value:'both'})
+        this.setInventoryFilters({type:'expiryFilter', value:'expired'})
+      }
+    },
     onDismissedExam() {
       this.examDismissCountDown(999)
     }
   }
 }
 </script>
+
+<style>
+  #showExams {
+    position: relative;
+    float: right;
+    bottom: 6px;
+  }
+</style>

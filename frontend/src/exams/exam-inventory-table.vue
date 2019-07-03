@@ -38,70 +38,56 @@
           <b-btn-group v-if="is_liaison_designate" class="pt-2">
             <b-btn @click="officeFilterModal=true"
                    :variant="officeFilter === userOffice || officeFilter === 'default' ? 'primary' : 'warning'"
-                   class="btn-sm">Office # {{ officeNumber }} - {{ officeName }}</b-btn>
+                   class="btn-sm mb-1 mr-1">Office # {{ officeNumber }} - {{ officeName }}</b-btn>
           </b-btn-group>
-          <b-button-group horizontal
-                          class="ml-2 pt-2"
-                          label="Expired Exam Filters">
-            <b-button size="sm"
-                      :pressed="inventoryFilters.expiryFilter==='all'"
-                      @click="setInventoryFilters({type:'expiryFilter', value:'all'})"
-                      variant="primary">
-              <span class="mx-2">All</span>
-            </b-button>
-            <b-button size="sm"
-                      :pressed="inventoryFilters.expiryFilter==='expired'"
-                      @click="setInventoryFilters({type:'expiryFilter', value:'expired'})"
-                      variant="primary">Expired</b-button>
-            <b-button size="sm"
-                      :pressed="inventoryFilters.expiryFilter==='current'"
-                      @click="setInventoryFilters({type:'expiryFilter', value:'current'})"
-                      variant="primary">Current</b-button>
+          <b-button-group v-if="selectedExamTypeFilter == ''">
+            <b-dropdown size="sm"
+                        variant="primary"
+                        class="mb-1 mt-2 ml-2 mr-2"
+                        text="Exam Type"
+                        v-model="selectedExamTypeFilter">
+              <b-dropdown-item v-for="option in examTypeOptions"
+                               @click="selectedExamTypeFilter = option.text">
+                {{ option.text }}
+              </b-dropdown-item>
+            </b-dropdown>
           </b-button-group>
-          <b-btn-group horizontal class="ml-2 pt-2">
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.scheduledFilter==='both'"
-                   @click="setInventoryFilters({type:'scheduledFilter', value:'both'})"
-                   variant="primary">
-              <span class="mx-2">Both</span>
-            </b-btn>
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.scheduledFilter==='unscheduled'"
-                   @click="setInventoryFilters({type:'scheduledFilter', value:'unscheduled'})"
-                   variant="primary">Not Ready</b-btn>
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.scheduledFilter==='scheduled'"
-                   @click="setInventoryFilters({type:'scheduledFilter', value:'scheduled'})"
-                   variant="primary">Ready</b-btn>
-          </b-btn-group>
-          <b-btn-group horizontal class="ml-2 pt-2">
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.groupFilter==='both'"
-                   @click="setInventoryFilters({type:'groupFilter', value:'both'})"
-                   variant="primary"><span class="mx-2">Both</span></b-btn>
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.groupFilter==='individual'"
-                   @click="setInventoryFilters({type:'groupFilter', value:'individual'})"
-                   variant="primary">Individual</b-btn>
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.groupFilter==='group'"
-                   @click="setInventoryFilters({type:'groupFilter', value:'group'})"
-                   variant="primary">Group</b-btn>
-          </b-btn-group>
-          <b-btn-group horizontal class="ml-2 pt-2">
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.returnedFilter==='both'"
-                   @click="setFilter({type:'returnedFilter', value:'both'})"
-                   variant="primary"><span class="mx-2">Both</span></b-btn>
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.returnedFilter==='returned'"
-                   @click="setFilter({type:'returnedFilter', value:'returned'})"
-                   variant="primary">Returned</b-btn>
-            <b-btn size="sm"
-                   :pressed="inventoryFilters.returnedFilter==='unreturned'"
-                   @click="setFilter({type:'returnedFilter', value:'unreturned'})"
-                   variant="primary">Not Returned</b-btn>
-          </b-btn-group>
+          <b-button-group v-else>
+            <b-dropdown size="sm"
+                        variant="primary"
+                        class="mb-1 mt-2 ml-2 mr-2"
+                        :text="this.selectedExamTypeFilter"
+                        v-model="selectedExamTypeFilter">
+              <b-dropdown-item v-for="option in examTypeOptions"
+                               @click="selectedExamTypeFilter = option.text">
+                {{ option.text }}
+              </b-dropdown-item>
+            </b-dropdown>
+          </b-button-group>
+          <b-button-group v-if="selectedFilter == ''">
+            <b-dropdown size="sm"
+                        variant="primary"
+                        class="mb-1 mt-2 ml-2 mr-2"
+                        text="Quick Action Filters"
+                        v-model="selectedFilter">
+              <b-dropdown-item v-for="option in filterOptions"
+                               @click="selectedFilter = option.value">
+                {{ option.text }}
+              </b-dropdown-item>
+            </b-dropdown>
+          </b-button-group>
+          <b-button-group v-else>
+            <b-dropdown size="sm"
+                        variant="primary"
+                        class="mb-1 mt-2 ml-2 mr-2"
+                        :text="this.selectedFilter"
+                        v-model="selectedFilter">
+              <b-dropdown-item v-for="option in filterOptions"
+                               @click="selectedFilter = option.value">
+                {{ option.text }}
+              </b-dropdown-item>
+            </b-dropdown>
+          </b-button-group>
         </b-input-group>
       </b-form>
     </div>
@@ -314,11 +300,26 @@
         detailsRowSetup: null,
         searchTerm: null,
         officeFilterModal: false,
+        quickActionModal: false,
         page: 1,
         tableStyle: null,
         buttonH: 45,
         qLengthH: 28,
         totalH: 0,
+        examTypeOptions: [
+          {text: 'Individual', value: 'individual'},
+          {text: 'Group', value: 'group'},
+          {text: 'Other', value: 'other'},
+          {text: 'Pesticide', value: 'pesticide'},
+        ],
+        filterOptions: [
+          {text: 'Exams Not Returned', value: 'Exams Not Returned'},
+          {text: 'Action Required', value: 'Action Required'},
+          {text: 'Require Invigilator Assignment', value: 'Require Invigilator Assignment'},
+          {text: 'All Exams', value: 'All Exams'},
+        ],
+        selectedExamTypeFilter: '',
+        selectedFilter: '',
       }
     },
     computed: {
@@ -842,5 +843,9 @@
   .btn:active, .btn.active {
    background-color: #184368 !important;
    color: white !important;
+  }
+  #quickActions {
+    position: relative;
+    float: left;
   }
 </style>
