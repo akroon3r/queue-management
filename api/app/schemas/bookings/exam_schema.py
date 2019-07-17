@@ -46,6 +46,19 @@ class ExamSchema(ma.ModelSchema):
     exam_written_ind = fields.Int()
     offsite_location = fields.String()
 
+    # TODO Cleanup return object remove comments to turn on
+
+    booking = fields.Nested(BookingSchema(only=('booking_contact_information', 'booking_id', 'booking_name', 'end_time',
+                                                'fees', 'invigilator_id', 'office_id', 'room', 'room_id',
+                                                'sbc_staff_invigilated', 'start_time'),
+                                          exclude=()))
+    exam_type = fields.Nested(ExamTypeSchema())
+    office = fields.Nested(OfficeSchema(only=("appointments_enabled_ind", "exams_enabled_ind", "office_id",
+                                              "office_name", "office_number", "timezone", )))
+
+    # TODO Cleanup return object remove comments to turn off
+    '''
     booking = fields.Nested(BookingSchema())
     exam_type = fields.Nested(ExamTypeSchema())
-    office = fields.Nested(OfficeSchema(exclude=("csrs",)))
+    office = fields.Nested(OfficeSchema())
+    '''
