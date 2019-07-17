@@ -36,7 +36,12 @@ class ExamPut(Resource):
         if not json_data:
             return {"message": "No input data received for updating an exam"}
 
-        exam = Exam.query.filter_by(exam_id=id).first_or_404()
+        # TODO Deleted date filter original
+        #exam = Exam.query.filter_by(exam_id=id).first_or_404()
+
+        # TODO Deleted date filter updated
+        exam = Exam.query.filter(Exam.deleted_date.is_(None))\
+                         .filter_by(exam_id=id).first_or_404()
 
         if not (exam.office_id == csr.office_id or csr.liaison_designate == 1):
             return {"The Exam Office ID and CSR Office ID do not match!"}, 403
