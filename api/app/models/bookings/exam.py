@@ -38,7 +38,7 @@ class Exam(Base):
     offsite_location = db.Column(db.String(50), nullable=True)
 
     booking = db.relationship("Booking")
-    exam_type = db.relationship("ExamType", lazy='raise')
+    exam_type = db.relationship("ExamType")
     office = db.relationship("Office")
 
     def __repr__(self):
