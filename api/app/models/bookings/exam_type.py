@@ -34,6 +34,9 @@ class ExamType(Base):
     # TODO changed lazy=false to no lazy option
     #exam = db.relationship("Exam")
 
+    # TODO changed lazy='raise'
+    exam = db.relationship("Exam", lazy='raise')
+
     def __repr__(self):
         return '<Exam Type Name: (name={self.exam_type_name!r})>'.format(self=self)
 
