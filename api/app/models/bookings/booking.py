@@ -22,6 +22,7 @@ class Booking(Base):
     booking_id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
     room_id = db.Column(db.Integer, db.ForeignKey("room.room_id"), nullable=True)
     invigilator_id = db.Column(db.Integer, db.ForeignKey("invigilator.invigilator_id"), nullable=True)
+    shadow_invigilator_id = db.Column(db.Integer, nullable=True)
     office_id = db.Column(db.Integer, db.ForeignKey("office.office_id"), nullable=False)
     start_time = db.Column(UtcDateTime, nullable=False)
     end_time = db.Column(UtcDateTime, nullable=False)

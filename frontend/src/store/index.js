@@ -109,6 +109,7 @@ export const store = new Vuex.Store({
       requireOEMAttentionFilter: 'default',
     },
     invigilators: [],
+    shadowInvigilators: [],
     isLoggedIn: false,
     loginAlertMessage: '',
     loginDismissCount: 0,
@@ -212,11 +213,30 @@ export const store = new Vuex.Store({
     
     invigilator_dropdown(state) {
       let invigilators = [
-        {value: null, text: 'unassigned'},
-        {value: 'sbc', text: 'SBC Staff'}
+        {value: null, text: 'unassigned', shadow_count: 2},
+        {value: 'sbc', text: 'SBC Staff', shadow_count: 2}
       ]
       state.invigilators.forEach( i => {
-        invigilators.push({ value: i.invigilator_id, text: i.invigilator_name })
+        invigilators.push({ value: i.invigilator_id, text: i.invigilator_name, shadow_count: i.shadow_count})
+      })
+      return invigilators.filter(i => i.shadow_count >= 2)
+    },
+
+    shadow_invigilator_options(state){
+      let invigilators = []
+
+      state.invigilators.forEach(i => {
+        invigilators.push({ id: i.invigilator_id, name: i.invigilator_name, shadow_count: i.shadow_count })
+      })
+
+      return invigilators.filter( i => i.shadow_count < 2)
+    },
+
+    invigilator_multi_select(state) {
+
+      let invigilators = []
+      state.invigilators.forEach( i => {
+        invigilators.push({ value: i.invigilator_id, name: i.invigilator_name })
       })
       return invigilators
     },
@@ -504,6 +524,17 @@ export const store = new Vuex.Store({
         .catch(error => {
           reject(error)
         })
+      })
+    },
+
+    putInvigilatorShadow(context, payload){
+      return new Promise((resolve, reject) => {
+        Axios(context).put(`/invigilator/${payload.id}/${payload.params}`).then(resp => {
+          resolve(resp.data)
+        })
+          .catch(error => {
+            reject(error)
+          })
       })
     },
 

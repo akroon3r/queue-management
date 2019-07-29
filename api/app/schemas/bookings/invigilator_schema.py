@@ -34,5 +34,8 @@ class InvigilatorSchema(ma.ModelSchema):
     invigilator_name = fields.Str()
     invigilator_notes = fields.Str()
     deleted = fields.Str()
+    shadow_count = fields.Int()
+    shadow_flag = fields.Str()
+    office_id = fields.Int()
 
     office = fields.Nested(OfficeSchema())
