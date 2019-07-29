@@ -18,7 +18,7 @@ from flask_restplus import Resource
 from sqlalchemy import exc
 from app.models.bookings import Exam, Booking, Invigilator, Room, ExamType
 from app.models.theq import CSR, Office
-from app.schemas.bookings import ExamSchema
+from app.schemas.bookings import ExamSchema, InvigilatorSchema
 from qsystem import api, oidc
 from datetime import datetime, timedelta
 import pytz
@@ -91,9 +91,9 @@ class ExamList(Resource):
             dest = io.StringIO()
             out = csv.writer(dest)
             out.writerow(['Office Name', 'Exam Type', 'Exam ID', 'Exam Name', 'Examinee Name', 'Event ID', 'Room Name',
-                          'Invigilator Name', 'SBC Invigilator', 'Start Time', 'End Time', 'Booking ID', 'Booking Name',
-                          'Number Of Students', 'Exam Received', 'Exam Written', 'Exam Returned', 'Notes',
-                          'Collect Fees'])
+                          'Invigilator Name', 'Shadow Invigilator Name', 'SBC Invigilator', 'Start Time', 'End Time',
+                          'Booking ID', 'Booking Name', 'Number Of Students', 'Exam Received', 'Exam Written',
+                          'Exam Returned', 'Notes', 'Collect Fees', ])
 
             keys = [
                 "office_name",
@@ -104,6 +104,7 @@ class ExamList(Resource):
                 "event_id",
                 "room_name",
                 "invigilator_name",
+                "shadow_invigilator_id",
                 "sbc_staff_invigilated",
                 "start_time",
                 "end_time",
@@ -140,12 +141,18 @@ class ExamList(Resource):
 
             for exam in exams:
                 row = []
+                if exam.booking.shadow_invigilator_id:
+                    shadow_invigilator_id = exam.booking.shadow_invigilator_id
+                else:
+                    shadow_invigilator_id = None
                 try:
                     for key in keys:
                         if key == "room_name":
                             write_room(row, exam)
                         elif key == "invigilator_name":
                             write_invigilator(row, exam)
+                        elif key == "shadow_invigilator_id":
+                            write_shadow_invigilator(row, shadow_invigilator_id)
                         elif key == "sbc_staff_invigilated":
                             write_sbc(row, exam)
                         elif key == "exam_received_date":
@@ -180,6 +187,8 @@ class ExamList(Resource):
                             if key == "room_name":
                                 write_booking_room(row, non_exam)
                             elif key == "invigilator_name":
+                                row.append("")
+                            elif key == "shadow_invigilator_id":
                                 row.append("")
                             elif key == "sbc_staff_invigilated":
                                 row.append("")
@@ -236,6 +245,7 @@ def write_booking_room(row, booking):
     else:
         row.append(booking.room.room_name)
 
+
 def write_room(row, exam):
     if exam.booking and exam.booking.room:
         row.append(exam.booking.room.room_name)
@@ -248,6 +258,15 @@ def write_invigilator(row, exam):
         row.append("")
     else:
         row.append(exam.booking.invigilator.invigilator_name)
+
+
+def write_shadow_invigilator(row, shadow_invigilator_id):
+    if shadow_invigilator_id is None:
+        row.append("")
+    else:
+        invigilator = Invigilator.query.filter_by(invigilator_id=shadow_invigilator_id).first_or_404()
+        shadow_name = invigilator.invigilator_name
+        row.append(shadow_name)
 
 
 def write_sbc(row, exam):
