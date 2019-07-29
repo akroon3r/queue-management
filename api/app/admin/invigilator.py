@@ -42,18 +42,31 @@ class InvigilatorConfig(Base):
         'contract_number',
         'contract_expiry_date',
         'invigilator_notes',
-        'deleted'
+        'shadow_count',
+        'shadow_flag',
+        'deleted',
     ]
+
+    form_args = {
+        'shadow_count': {'default': '0'},
+        'shadow_flag': {'default': 'N'}
+    }
 
     form_excluded_columns = [
         'bookings'
     ]
 
     column_labels = {'office.office_name': 'Office Name',
-                     'deleted': 'Deleted'}
+                     'shadow_count': 'Shadow Session Count',
+                     'shadow_flag': 'Shadow Sessions Completed',
+                     'deleted': 'Deleted'
+                     }
 
     column_searchable_list = {'invigilator_name',
-                              'deleted'}
+                              'shadow_count',
+                              'shadow_flag',
+                              'deleted',
+                              }
 
     form_create_rules = (
         'office',
@@ -63,6 +76,8 @@ class InvigilatorConfig(Base):
         'contract_number',
         'contract_expiry_date',
         'invigilator_notes',
+        'shadow_count',
+        'shadow_flag',
         'deleted'
     )
 
@@ -74,7 +89,9 @@ class InvigilatorConfig(Base):
         'contract_number',
         'contract_expiry_date',
         'invigilator_notes',
-        'deleted'
+        'shadow_count',
+        'shadow_flag',
+        'deleted',
     )
 
     column_sortable_list = [
@@ -82,7 +99,9 @@ class InvigilatorConfig(Base):
         'contact_email',
         'contract_number',
         'contract_expiry_date',
-        'deleted'
+        'shadow_count',
+        'shadow_flag',
+        'deleted',
     ]
 
     column_default_sort = 'invigilator_name'
