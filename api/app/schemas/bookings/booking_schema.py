@@ -33,6 +33,7 @@ class BookingSchema(ma.ModelSchema):
     room_id = fields.Int()
     start_time = fields.DateTime()
     invigilator_id = fields.Int(allow_none=True)
+    shadow_invigilator_id = fields.Int(allow_none=True)
     office_id = fields.Int()
     sbc_staff_invigilated = fields.Int()
     booking_contact_information = fields.Str()

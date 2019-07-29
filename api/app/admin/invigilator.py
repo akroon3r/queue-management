@@ -16,6 +16,7 @@ from app.models.bookings import Invigilator
 from .base import Base
 from flask_login import current_user
 from qsystem import db
+import warnings
 
 
 class InvigilatorConfig(Base):
@@ -42,18 +43,29 @@ class InvigilatorConfig(Base):
         'contract_number',
         'contract_expiry_date',
         'invigilator_notes',
-        'deleted'
+        'shadow_count',
+        'shadow_flag',
+        'deleted',
     ]
+
+    form_args = {
+        'shadow_count': {'default': '0'},
+        'shadow_flag': {'default': 'N'},
+    }
 
     form_excluded_columns = [
         'bookings'
     ]
 
     column_labels = {'office.office_name': 'Office Name',
-                     'deleted': 'Deleted'}
+                     'deleted': 'Deleted',
+                     'shadow_count': 'Shadow Session Count',
+                     'shadow_flag': 'Shadow Sessions Completed'}
 
     column_searchable_list = {'invigilator_name',
-                              'deleted'}
+                              'deleted',
+                              'shadow_count',
+                              'shadow_flag',}
 
     form_create_rules = (
         'office',
@@ -63,7 +75,9 @@ class InvigilatorConfig(Base):
         'contract_number',
         'contract_expiry_date',
         'invigilator_notes',
-        'deleted'
+        'shadow_count',
+        'shadow_flag',
+        'deleted',
     )
 
     form_edit_rules = (
@@ -74,7 +88,9 @@ class InvigilatorConfig(Base):
         'contract_number',
         'contract_expiry_date',
         'invigilator_notes',
-        'deleted'
+        'deleted',
+        'shadow_count',
+        'shadow_flag'
     )
 
     column_sortable_list = [
@@ -82,7 +98,9 @@ class InvigilatorConfig(Base):
         'contact_email',
         'contract_number',
         'contract_expiry_date',
-        'deleted'
+        'deleted',
+        'shadow_count',
+        'shadow_flag',
     ]
 
     column_default_sort = 'invigilator_name'
