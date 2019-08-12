@@ -88,6 +88,18 @@
             </b-col>
           </b-form-row>
           <b-form-row>
+            <b-col>
+              <b-form-group v-if="checkBookingBlackout">
+                <label>Blackout Notes</label><br>
+                <b-form-textarea id="blackout_notes"
+                                 v-model="blackout_notes"
+                                 class="mb-2"
+                                 @change.native="checkValue">
+                </b-form-textarea>
+              </b-form-group>
+            </b-col>
+          </b-form-row>
+          <b-form-row>
             <b-col cols="6">
               <b-form-group>
                 <label>Room</label>
@@ -223,6 +235,7 @@
         title: '',
         booking_contact_information: '',
         rescheduling: false,
+        blackout_notes: ''
       }
     },
     computed: {
@@ -237,6 +250,12 @@
           selectedExam: state => state.selectedExam,
         }
       ),
+      checkBookingBlackout(){
+        if(this.event.blackout_flag === 'Y'){
+          return true
+        }
+        return false
+      },
       displayDates() {
         if (this.start && this.end) {
           return {
@@ -495,6 +514,9 @@
         if (!this.editedFields.includes('booking_contact_information')){
           this.booking_contact_information = this.event.booking_contact_information
         }
+        if(!this.editedFields.includes('blackout_notes')){
+          this.blackout_notes = this.event.blackout_notes
+        }
         if(this.rescheduling){
           this.invigilator = null
         }
@@ -550,6 +572,9 @@
         }
         if (this.editedFields.includes('contact_information')){
           changes['booking_contact_information'] = this.booking_contact_information
+        }
+        if(this.editedFields.includes('blackout_notes')){
+          changes['blackout_notes'] = this.blackout_notes
         }
         if (Object.keys(changes).length === 0) {
           this.message = 'No Changes Made'
