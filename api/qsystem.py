@@ -101,8 +101,10 @@ flask_admin = Admin(application, name='Admin Console', template_mode='bootstrap3
 flask_admin.add_view(admin.ChannelModelView)
 flask_admin.add_view(admin.CounterModelView)
 flask_admin.add_view(admin.CSRModelView)
+flask_admin.add_view(admin.CSRGAModelView)
 flask_admin.add_view(admin.InvigilatorModelView)
 flask_admin.add_view(admin.OfficeModelView)
+flask_admin.add_view(admin.OfficeGAModelView)
 flask_admin.add_view(admin.RoleModelView)
 flask_admin.add_view(admin.ServiceModelView)
 flask_admin.add_view(admin.SmartBoardModelView)
@@ -233,6 +235,7 @@ import app.resources.bookings.exam.exam_post
 import app.resources.bookings.exam.exam_put
 import app.resources.bookings.exam.exam_export_list
 import app.resources.bookings.invigilator.invigilator_list
+import app.resources.bookings.invigilator.invigilator_put
 import app.resources.bookings.room.room_list
 import app.resources.bookings.exam_type.exam_type_list
 

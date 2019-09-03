@@ -53,7 +53,7 @@ export const store = new Vuex.Store({
     },
     addModalSetup: null,
     addNextService: false,
-    adminNavigation: 'csr',
+    adminNavigation: '',
     appointmentsStateInfo: {
       channel_id: null,
       service_id: null,
@@ -109,6 +109,7 @@ export const store = new Vuex.Store({
       requireOEMAttentionFilter: 'default',
     },
     invigilators: [],
+    shadowInvigilators: [],
     isLoggedIn: false,
     loginAlertMessage: '',
     loginDismissCount: 0,
@@ -211,16 +212,67 @@ export const store = new Vuex.Store({
         }
       }
     },
-    
+
+    admin_navigation_nonblank(state) {
+      if (state.adminNavigation != '') { return state.adminNavigation }
+      else {
+        //  Default navigation is to the GA Edit CSR screen.
+        let nav = 'csrga'
+
+        //  Calculate if it needs to be changed.
+        if (state.user && state.user.role && state.user.role.role_code == 'SUPPORT') {
+          nav = 'csr'
+        }
+        if (state.user && state.user.role && state.user.role.role_code == 'ANALYTICS') {
+          nav = 'service'
+        }
+
+        //  Return the right option
+        return nav
+      }
+    },
+
     invigilator_dropdown(state) {
       let invigilators = [
-        {value: null, text: 'unassigned'},
-        {value: 'sbc', text: 'SBC Staff'}
+        {value: null, text: 'unassigned', shadow_count: 2},
+        {value: 'sbc', text: 'SBC Staff', shadow_count: 2}
       ]
       state.invigilators.forEach( i => {
-        invigilators.push({ value: i.invigilator_id, text: i.invigilator_name })
+        invigilators.push({ value: i.invigilator_id, text: i.invigilator_name, shadow_count: i.shadow_count })
+      })
+      return invigilators.filter(i => i.shadow_count == 2)
+    },
+
+    shadow_invigilator_options(state){
+      let invigilators = []
+      state.invigilators.forEach(i => {
+        invigilators.push({ id: i.invigilator_id, name: i.invigilator_name, shadow_count: i.shadow_count })
+      })
+      return invigilators.filter( i => i.shadow_count < 2)
+    },
+
+    shadow_invigilators(state){
+      let invigilators = []
+      state.invigilators.forEach(i => {
+        invigilators.push({ id: i.invigilator_id, name: i.invigilator_name, shadow_count: i.shadow_count })
       })
       return invigilators
+    },
+
+    all_invigilator_options(state){
+      let invigilators = []
+      state.invigilators.forEach(i => {
+        invigilators.push({ id: i.invigilator_id, name: i.invigilator_name})
+      })
+      return invigilators
+    },
+
+    invigilator_multi_select(state) {
+      let invigilators = []
+      state.invigilators.forEach( i => {
+        invigilators.push({ value: i.invigilator_id, name: i.invigilator_name, shadow_count: i.shadow_count })
+      })
+      return invigilators.filter(i => i.shadow_count == 2)
     },
 
     show_scheduling_indicator: (state) => {
@@ -509,6 +561,17 @@ export const store = new Vuex.Store({
       })
     },
 
+    putInvigilatorShadow(context, payload){
+      return new Promise((resolve, reject) => {
+        Axios(context).put(`/invigilator/${payload.id}/${payload.params}`).then(resp => {
+          resolve(resp.data)
+        })
+          .catch(error => {
+            reject(error)
+          })
+      })
+    },
+
     flashServeNow(context, payload) {
       let flash = () => {
         if (!context.state.showServiceModal) {
@@ -724,6 +787,20 @@ export const store = new Vuex.Store({
     },
 
     getInvigilators(context) {
+      return new Promise ((resolve, reject) => {
+        Axios(context).get('/invigilators/')
+          .then(resp => {
+            context.commit('setInvigilators', resp.data.invigilators)
+            resolve(resp)
+          })
+          .catch(error => {
+            console.log(error)
+            reject(error)
+          })
+      })
+    },
+
+    getInvigilatorsWithShadowFlag(context) {
       return new Promise ((resolve, reject) => {
         Axios(context).get('/invigilators/')
           .then(resp => {

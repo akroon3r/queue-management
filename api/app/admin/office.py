@@ -20,82 +20,173 @@ from qsystem import db
 
 
 class OfficeConfig(Base):
-    roles_allowed = ['SUPPORT']
+    roles_allowed = ['SUPPORT', 'GA']
 
     def is_accessible(self):
         return current_user.is_authenticated and current_user.role.role_code in self.roles_allowed
 
+    @property
+    def can_create(self):
+        return current_user.role.role_code != 'GA'
+
+    def get_query(self):
+        if current_user.role.role_code == 'SUPPORT':
+            return self.session.query(self.model)
+        elif current_user.role.role_code == 'GA':
+            return self.session.query(self.model).filter_by(office_id=current_user.office_id)
+
     create_modal = False
     edit_modal = False
     can_delete = False
-    form_create_rules = ('office_name', 'office_number', 'sb', 'services', 'deleted', 'exams_enabled_ind',
-                         'appointments_enabled_ind', 'timezone')
-    form_edit_rules = ('office_name', 'office_number', 'sb', 'services', 'deleted', 'exams_enabled_ind',
-                       'appointments_enabled_ind', 'timezone')
-    column_labels = {'sb': 'Smartboard', 'timezone.timezone_name': 'Timezone Name'}
-    column_searchable_list = ('office_name',)
-    column_sortable_list = ['office_name', 'sb', 'deleted', 'exams_enabled_ind']
-    column_list = ['office_name',
-                   'sb',
-                   'services',
-                   'deleted',
-                   'exams_enabled_ind',
-                   'appointments_enabled_ind',
-                   'counters',
-                   'timezone.timezone_name',
-                   ]
 
-    form_excluded_columns = ('citizens',
-                             'csrs',
-                             'exams',
-                             'rooms',
-                             'invigilators'
-                             )
+    form_create_rules = (
+        'office_name',
+        'office_number',
+        'sb',
+        'services',
+        'deleted',
+        'exams_enabled_ind',
+        'appointments_enabled_ind',
+        'timezone'
+    )
 
-    form_create_rules = ('office_name',
-                         'office_number',
-                         'sb',
-                         'services',
-                         'deleted',
-                         'exams_enabled_ind',
-                         'appointments_enabled_ind',
-                         'counters',
-                         'quick_list',
-                         'back_office_list',
-                         'timezone',
-                         )
+    form_edit_rules = (
+        'office_name',
+        'office_number',
+        'sb', 'services',
+        'deleted',
+        'exams_enabled_ind',
+        'appointments_enabled_ind',
+        'timezone'
+    )
 
-    form_edit_rules = ('office_name',
-                       'office_number',
-                       'sb',
-                       'services',
-                       'deleted',
-                       'exams_enabled_ind',
-                       'appointments_enabled_ind',
-                       'counters',
-                       'quick_list',
-                       'back_office_list',
-                       'timezone'
-                       )
+    column_labels = {
+        'sb': 'Smartboard',
+        'timezone.timezone_name': 'Timezone Name'
+    }
 
-    column_labels = {'sb': 'Smartboard',
-                     'timezone.timezone_name': 'Timezone Name',
-                     'exams_enabled_ind': 'Exams Enabled',
-                     'appointments_enabled_ind': 'Appointments Enabled',
-                     }
+    column_searchable_list = (
+        'office_name',
+    )
 
-    column_sortable_list = ['office_name',
-                            'sb',
-                            'deleted',
-                            'exams_enabled_ind',
-                            'exams_enabled_ind',
-                            'appointments_enabled_ind',
-                             'counters',
-                            'quick_list',
-                            'back_office_list',
-                            ]
+    column_sortable_list = [
+        'office_name',
+        'sb',
+        'deleted',
+        'exams_enabled_ind'
+    ]
+
+    column_list = [
+        'office_name',
+        'sb',
+        'services',
+        'deleted',
+        'exams_enabled_ind',
+        'appointments_enabled_ind',
+        'counters',
+        'timezone.timezone_name',
+    ]
+
+    form_excluded_columns = (
+        'citizens',
+        'csrs',
+        'exams',
+        'rooms',
+        'invigilators'
+    )
+
+    form_create_rules = (
+        'office_name',
+        'office_number',
+        'sb',
+        'services',
+        'deleted',
+        'exams_enabled_ind',
+        'appointments_enabled_ind',
+        'counters',
+        'quick_list',
+        'back_office_list',
+        'timezone',
+    )
+
+    form_edit_rules = (
+        'office_name',
+        'office_number',
+        'sb',
+        'services',
+        'deleted',
+        'exams_enabled_ind',
+        'appointments_enabled_ind',
+        'counters',
+        'quick_list',
+        'back_office_list',
+        'timezone'
+    )
+
+    column_labels = {
+        'sb': 'Smartboard',
+        'timezone.timezone_name': 'Timezone Name',
+        'exams_enabled_ind': 'Exams Enabled',
+        'appointments_enabled_ind': 'Appointments Enabled',
+    }
+
+    column_sortable_list = [
+        'office_name',
+        'sb',
+        'deleted',
+        'exams_enabled_ind',
+        'exams_enabled_ind',
+        'appointments_enabled_ind',
+        'counters',
+        'quick_list',
+        'back_office_list',
+    ]
 
     column_default_sort = 'office_name'
 
+class OfficeConfigGA(OfficeConfig):
+
+    #  Change what GA sees on the Office List view.
+    column_labels = {
+        'quick_list': 'Quick List',
+        'back_office_list': 'Back Office List'
+    }
+
+    column_list = [
+        'office_name',
+        'quick_list',
+        'back_office_list'
+    ]
+
+    #  Change what GAs are allowed to do from what SUPPORT can do.
+    form_edit_rules = (
+        'office_name',
+        'quick_list',
+        'back_office_list'
+    )
+
+    form_excluded_columns = (
+        'citizens',
+        'csrs',
+        'exams',
+        'rooms',
+        'invigilators',
+        'office_number',
+        'sb',
+        'services',
+        'deleted',
+        'exams_enabled_ind',
+        'appointments_enabled_ind',
+        'counters',
+        'timezone'
+    )
+
+    form_widget_args = {
+        'office_name': {
+            'readonly': True
+        }
+    }
+
 
 OfficeModelView = OfficeConfig(Office, db.session)
+OfficeGAModelView = OfficeConfigGA(Office, db.session, endpoint='officega')
