@@ -132,7 +132,8 @@
             <b-col cols="5" v-if="examAssociated">
               <b-form-group>
                 <label>Invigilator</label><br>
-                <b-select :options="invigilator_dropdown"
+                <b-select v-model="invigilator"
+                          :options="invigilator_dropdown"
                           id="invigilator"
                           :value="invigilator"
                           @change="setInvigilator"/>
@@ -205,7 +206,7 @@
                 <label>Shadow Invigilators</label>
                 <b-form>
                   <b-row>
-                    <b-col>
+                    <b-col cols="7">
                       <b-table selectable
                                select-mode="single"
                                :fields="shadowFields"
@@ -221,7 +222,7 @@
                         </template>
                       </b-table>
                     </b-col>
-                    <b-col>
+                    <b-col cols="4">
                       <b-row>
                         Shadow Invigilator Limit: 1
                       </b-row>
@@ -291,7 +292,10 @@
             <b-col>
               <b-form-group>
                 <label>Change Date, Time or Room?</label><br>
-                <b-btn class="w-100 mb-0" @click="reschedule">Reschedule Booking</b-btn>
+                <b-btn class="w-100 mb-0"
+                       @click="reschedule">
+                  Reschedule Booking
+                </b-btn>
               </b-form-group>
             </b-col>
           </b-form-row>
@@ -362,6 +366,9 @@
         changeState: true,
         removeState: true,
         removeFlag: false,
+        rescheduleInvigilator: null,
+        rescheduleShadowInvigilator: null,
+        cancel_flag: false,
       }
     },
     computed: {
@@ -480,6 +487,7 @@
     },
     methods: {
       ...mapActions([
+        'getBookings',
         'deleteBooking',
         'finishBooking',
         'getInvigilators',
@@ -496,12 +504,14 @@
         'toggleRescheduling',
       ]),
       cancel() {
+        this.cancel_flag = true
         let returnRoute = false
         if (this.selectedExam && this.selectedExam.referrer === 'rescheduling') {
           returnRoute = true
         }
         this.finishBooking()
         this.resetModal()
+        this.getBookings()
         if (returnRoute) {
           this.$router.push('/exams')
         }
@@ -574,6 +584,8 @@
         }
       },
       reschedule() {
+        this.rescheduleInvigilator = this.invigilator
+        this.rescheduleShadowInvigilator = this.currentShadowInvigilator
         if (this.selectedExam && this.selectedExam.gotoDate) {
           this.setSelectedExam('clearGoto')
         }
@@ -581,6 +593,7 @@
         this.toggleEditBookingModal(false)
         this.rescheduling = true
         this.editedFields.push('invigilator')
+        this.editedFields.push('shadow_invigilator')
       },
       resetModal() {
         this.added = null
@@ -593,7 +606,6 @@
         this.state = null
         this.title = null
         this.confirm = false
-        this.invigilator = null
       },
       setInvigilator(e) {
         this.message = ''
@@ -662,8 +674,20 @@
           this.blackout_notes = this.event.blackout_notes
         }
         if(this.rescheduling){
-          this.invigilator = null
+          if(this.cancel_flag){
+            this.invigilator = this.rescheduleInvigilator
+            this.currentShadowInvigilator = this.rescheduleShadowInvigilator
+            this.rescheduleInvigilator = null
+            this.cancel_flag = false
+          }else {
+            this.invigilator = null
+            this.currentShadowInvigilator = null
+            this.currentShadowInvigilatorName = null
+          }
         }
+        this.rescheduling = false
+        this.cancel_flag = false
+        this.rescheduleInvigilator = null
       },
       rowSelectedShadow(shadows, e){
         this.message = ''
@@ -720,7 +744,6 @@
         }
         if (this.editedFields.includes('invigilator')) {
           changes.invigilator_id = this.invigilator
-          console.log('INVIGILATOR', changes.invigilator_id)
           if (changes.invigilator_id !== 'sbc') {
             changes.sbc_staff_invigilated = 0
           }
@@ -740,9 +763,14 @@
           } else {
             changes['shadow_invigilator_id'] = this.shadowInvigilator
           }
+          if(this.rescheduleShadowInvigilator !== null){
+            changes['shadow_invigilator_id'] = null
+          }
         }
         if (this.editedFields.includes('contact_information')){
           changes['booking_contact_information'] = this.booking_contact_information
+        }
+        if (this.editedFields.includes('invigilator_id')){
           changes['invigilator_id'] = this.invigilator
         }
         if(this.editedFields.includes('blackout_notes')){
@@ -763,6 +791,10 @@
           if (this.removeFlag) {
             invigilatorPayload.id = this.currentShadowInvigilator
             invigilatorPayload.params = '?add=False&subtract=True'
+          } else if(this.rescheduleShadowInvigilator !== null) {
+            invigilatorPayload.id = this.rescheduleShadowInvigilator
+            invigilatorPayload.params = '?add=False&subtract=True'
+            this.rescheduleShadowInvigilator = null
           } else if (this.shadowInvigilator && this.currentShadowInvigilator) {
             invigilatorPayload.id = this.shadowInvigilator
             invigilatorPayload.params = '?add=True&subtract=False'
@@ -795,6 +827,7 @@
           })
         }
         this.selectedShadow = []
+        this.shadowInvigilator = null
         this.removeFlag = false
       },
       setChange(){
@@ -821,7 +854,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .table-responsive {
     line-height: 5px;
   }
