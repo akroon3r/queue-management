@@ -232,6 +232,7 @@ import app.resources.bookings.booking.booking_detail
 import app.resources.bookings.booking.booking_list
 import app.resources.bookings.booking.booking_post
 import app.resources.bookings.booking.booking_put
+import app.resources.bookings.exam.documents.exam_create
 import app.resources.bookings.exam.exam_delete
 import app.resources.bookings.exam.exam_detail
 import app.resources.bookings.exam.exam_list
