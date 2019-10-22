@@ -457,6 +457,7 @@
         'showReturnExamModalVisible',
         'offices',
         'user',
+        'invigilators',
       ]),
       availableH() {
         let h = this.totalH - 240
@@ -906,6 +907,8 @@
       },
       readyDetailsMap(item) {
         let output = {}
+        let invigilator_name_list = []
+
         if (item.exam_returned_date) {
           return {
             Returned: moment(item.exam_returned_date).format('YYYY-MMM-DD'),
@@ -920,13 +923,31 @@
           if (item.booking.sbc_staff_invigilated) {
             output.Invigilator = 'SBC Staff'
           }
-          if (item.booking.invigilator_id && !item.booking.invigilator.deleted) {
-            output.Invigilator = item.booking.invigilator.invigilator_name
+          if (item.booking.invigilators) {
+            item.booking.invigilators.forEach(exam_invigilator => {
+              this.invigilators.forEach(office_invigilator => {
+                if(exam_invigilator == office_invigilator.invigilator_id){
+                  invigilator_name_list.push(office_invigilator.invigilator_name)
+                }
+              })
+            })
+            let invigilator_string = ''
+            if(invigilator_name_list.length > 0){
+              invigilator_name_list.forEach(invigilator => {
+                invigilator_string += invigilator
+                invigilator_string += ', '
+              })
+              invigilator_string = invigilator_string.replace(/,\s*$/, "")
+            }else if(invigilator_name_list.length == 0){
+              invigilator_name_list += ''
+            }
+            output.Invigilators = invigilator_string
           }
           if (item.booking.room_id) {
             output.Room = item.booking.room.room_name
           }
         }
+        console.log('OUTPUT: ', output)
         return output
       },
       resetActionedExam() {
