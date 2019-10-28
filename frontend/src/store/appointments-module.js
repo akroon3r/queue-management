@@ -11,6 +11,7 @@ export default {
       title: null,
       name: null
     },
+    editDeleteSeries: false,
     selectedService: null,
     showApptBookingModal: false,
     showAppointmentBlackoutModal: false,
@@ -40,7 +41,8 @@ export default {
             contact_information: apt.contact_information,
             comments: apt.comments,
             color: '#B5E0B8',
-            blackout_flag: apt.blackout_flag
+            blackout_flag: apt.blackout_flag,
+            recurring_uuid: apt.recurring_uuid,
           })
         )
       }
@@ -88,6 +90,17 @@ export default {
       let state = rootState
       return new Promise((resolve, reject) => {
         Axios({state}).delete(`/appointments/${payload}/`).then( () => {
+          dispatch('getAppointments').then( () => {
+            resolve()
+          })
+        })
+      })
+    },
+
+    deleteRecurringAppointments({dispatch, rootState}, payload) {
+      let state = rootState
+      return new Promise((resolve, reject) => {
+        Axios({state}).delete(`/appointments/recurring/${payload}`).then( () => {
           dispatch('getAppointments').then( () => {
             resolve()
           })
@@ -187,6 +200,18 @@ export default {
         })
       })
     },
+
+    putRecurringAppointment({dispatch, rootState}, payload){
+      let state = rootState
+      let uuid = payload.recurring_uuid
+      console.log('PUT DATA', payload)
+      return new Promise((resolve, reject) => {
+        Axios({state}).put(`/appointments/recurring/${uuid}`, payload.data).then( resp => {
+          dispatch('getAppointments')
+          resolve()
+        })
+      })
+    },
     
     putCitizen({rootState}, {citizen_id, payload}) {
       let start = moment(payload.start).clone().format('h:mm')
@@ -248,6 +273,7 @@ export default {
     },
     toggleApptBookingModal: (state, payload) => state.showApptBookingModal = payload,
     toggleCheckInModal: (state, payload) => state.showCheckInModal = payload,
+    toggleEditDeleteSeries: (state, payload) => state.editDeleteSeries = payload,
     setSelectedService: (state, payload) => {
       state.selectedService = null
       state.selectedService = payload

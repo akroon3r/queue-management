@@ -35,3 +35,4 @@ class AppointmentSchema(ma.ModelSchema):
     citizen_name = fields.String()
     contact_information = fields.String(allow_none=True)
     blackout_flag = fields.String(allow_none=True)
+    recurring_uuid = fields.String(allow_none=True)
