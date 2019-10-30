@@ -132,6 +132,7 @@
       }),
       ...mapState({
         exam: state => state.capturedExam,
+        event_ids: state => state.event_ids,
         addExamModal: state => state.addExamModal,
         addGroupSteps: state => state.addExamModule.addGroupSteps,
         addChallengerSteps: state => state.addExamModule.addChallengerSteps,
@@ -194,6 +195,17 @@
           if (key === 'notes') {
             valid[key] = true
             messages[key] = ''
+            return
+          }
+          if (key === 'event_id' && answer) {
+            this.getExamEventIDs(answer)
+            if(this.event_ids === false) {
+              valid['event_id'] = true
+              messages['event_id'] = ""
+              return
+            }
+            valid['event_id'] = false
+            messages['event_id'] = 'Event ID already in Use'
             return
           }
           if (key === 'exam_name' && answer && answer.length > 50) {
@@ -290,8 +302,15 @@
       },
     },
     methods: {
-      ...mapMutations(['captureExamDetail', 'updateCaptureTab',]),
-      ...mapActions(['getExamTypes', 'getOffices']),
+      ...mapMutations([
+        'captureExamDetail',
+        'updateCaptureTab',
+      ]),
+      ...mapActions([
+        'getExamTypes',
+        'getExamEventIDs',
+        'getOffices',
+      ]),
       handleInput(e) {
         let payload = {
           key: e.target.name,
