@@ -197,7 +197,13 @@
             messages[key] = ''
             return
           }
-          if (key === 'event_id' && answer) {
+          let group_exam_indicator = false
+          this.examTypes.forEach(exam_type => {
+            if (exam_type.exam_type_id === this.exam.exam_type_id && exam_type.group_exam_ind === 1) {
+              group_exam_indicator = true
+            }
+          })
+          if (key === 'event_id' && answer && group_exam_indicator) {
             this.getExamEventIDs(answer)
             if(this.event_ids === false) {
               valid['event_id'] = true
